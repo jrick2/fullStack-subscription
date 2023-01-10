@@ -1,14 +1,27 @@
 import { Modal, Button, InputGroup, FormControl } from "react-bootstrap";
 import { useState } from "react";
+import axios from "axios";
 
 interface ModalProps {
   text: string;
   variant: string;
+  isSignUp: boolean;
 }
-const ModalComponent = ({ text, variant }: ModalProps) => {
+const ModalComponent = ({ text, variant, isSignUp }: ModalProps) => {
   const [show, setShow] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const handleClick = async () => {
+    let data;
+    if (isSignUp) {
+      await axios.post("/auth/register", {
+        email,
+        password,
+      });
+    }
+  };
   return (
     <>
       <Button
@@ -27,19 +40,29 @@ const ModalComponent = ({ text, variant }: ModalProps) => {
         <Modal.Body>
           <InputGroup className="mb-3">
             <InputGroup.Text>Email</InputGroup.Text>
-            <FormControl type="email" />
+            <FormControl
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </InputGroup>
 
           <InputGroup className="mb-3">
             <InputGroup.Text>Password</InputGroup.Text>
-            <FormControl type="password" />
+            <FormControl
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </InputGroup>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary">Submit</Button>
+          <Button variant="primary" onClick={handleClick}>
+            Submit
+          </Button>
         </Modal.Footer>
       </Modal>
     </>
