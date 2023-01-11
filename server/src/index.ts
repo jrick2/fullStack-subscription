@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth";
 import cors from "cors";
-require("express-async-errors");
 dotenv.config();
 
 const app = express();

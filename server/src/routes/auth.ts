@@ -1,7 +1,10 @@
 import express from "express";
+import { createUserHandler } from "../controllers/auth";
+import validateResource from "../middleware/validateResource";
+import { createUserSchema } from "../userSchema/schema";
+
 const router = express.Router();
 
-router.get("/register", async (req, res) => res.send("Hello"));
-router.post("/login", async (req, res) => res.send("Hello 2"));
+router.post("/register", validateResource(createUserSchema), createUserHandler);
 
 export default router;
