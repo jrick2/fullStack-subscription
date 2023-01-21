@@ -1,4 +1,6 @@
-/node_modules
+.node_modules
 .env
-/package-lock
-/response
+package-lock.json
+package.json
+response.rest
+.config
