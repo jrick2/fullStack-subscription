@@ -1,19 +1,36 @@
 import {
-  prop,
   getModelForClass,
+  prop,
   modelOptions,
   Severity,
   pre,
   DocumentType,
+  index,
 } from "@typegoose/typegoose";
 import { nanoid } from "nanoid";
 import argon2 from "argon2";
+import log from "../utils/logger";
+
+export const privateFields = [
+  "password",
+  "__v",
+  "verificationCode",
+  "passwordResetCode",
+  "verified",
+];
+
 @pre<User>("save", async function () {
   if (!this.isModified("password")) {
     return;
   }
+
   const hash = await argon2.hash(this.password);
+
+  this.password = hash;
+
+  return;
 })
+@index({ email: 1 })
 @modelOptions({
   schemaOptions: {
     timestamps: true,
@@ -36,16 +53,16 @@ export class User {
   verificationCode: string;
 
   @prop()
-  passowrdResetCode: string | null;
+  passwordResetCode: string | null;
 
-  @prop({ required: true })
+  @prop({ default: false })
   verified: boolean;
 
   async validatePassword(this: DocumentType<User>, candidatePassword: string) {
     try {
       return await argon2.verify(this.password, candidatePassword);
     } catch (error) {
-      console.log(error, "Could not validate password");
+      log.error(error, "Could not validate password");
       return false;
     }
   }

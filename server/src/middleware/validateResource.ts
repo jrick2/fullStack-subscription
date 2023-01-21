@@ -12,7 +12,7 @@ const validateResource =
       });
       next();
     } catch (e: any) {
-      return res.status(400).json({ err: e.errors });
+      return res.status(400).send(e.errors);
     }
   };
 

@@ -1,16 +1,31 @@
+require("dotenv").config();
+require("express-async-errors");
 import express from "express";
-import dotenv from "dotenv";
-import authRouter from "./routes/auth";
-import cors from "cors";
-dotenv.config();
+import config from "config";
+import connectToDb from "./db/connectDB";
+import log from "./utils/logger";
+import router from "./routes";
+import deserializeUser from "./middleware/deserializeUser";
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
-app.use("/auth", authRouter);
+app.use(deserializeUser);
 
-const PORT = process.env.PORT || 5000;
+app.use(router);
 
-app.listen(PORT, () => console.log(`Server is listening on port ${PORT}...`));
+const port = config.get("port");
+
+const start = async () => {
+  try {
+    await connectToDb();
+    app.listen(port, () => {
+      log.info(`App started at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+start();
