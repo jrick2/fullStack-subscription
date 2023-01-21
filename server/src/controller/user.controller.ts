@@ -24,7 +24,7 @@ export async function createUserHandler(
     const user = await createUser(body);
 
     await sendEmail({
-      from: "hoshrandom@gmail.com",
+      from: "julian29@ethereal.email",
       to: user.email,
       subject: "Verify your email",
       text: `verification code: ${user.verificationCode}. Id: ${user._id}`,
