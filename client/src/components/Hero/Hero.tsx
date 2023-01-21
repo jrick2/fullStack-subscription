@@ -37,8 +37,8 @@ const Hero = () => {
             Grow, learn and become more successful by reading some of the top
             article by highly reputable individual
           </SubHeading>
-          <ModalComponent text="Signup" variant="primary" />
-          <ModalComponent text="Login" variant="danger" />
+          <ModalComponent text="Signup" variant="primary" isSignUp={true} />
+          <ModalComponent text="Login" variant="danger" isSignUp={false} />
         </HeaderContainer>
       </Container>
     </HeroComponent>

@@ -1,6 +1,5 @@
-.node_modules
+/node_modules
 .env
-package-lock.json
-package.json
-response.rest
-.config
+/package-lock
+/package
+/response
