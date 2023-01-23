@@ -1,1 +1,2 @@
-POST http://localhost:5000/api/users/forgotpassword
+GET  http://localhost:5000/api/sessions
+
