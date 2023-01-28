@@ -7,9 +7,18 @@ import {
   DocumentType,
   index,
 } from "@typegoose/typegoose";
+import mongoose from "mongoose";
 import { nanoid } from "nanoid";
 import argon2 from "argon2";
 import log from "../utils/logger";
+
+export interface UserDocument extends mongoose.Document {
+  email: string;
+  name: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export const privateFields = [
   "password",
@@ -44,7 +53,7 @@ export class User {
   email: string;
 
   @prop({ lowercase: true, required: true, unique: true })
-  username: string;
+  name: string;
 
   @prop({ required: true })
   password: string;

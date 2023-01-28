@@ -1,27 +1,37 @@
 require("dotenv").config();
-require("express-async-errors");
 import express from "express";
 import config from "config";
-import connectToDb from "./db/connectDB";
+import connectToDb from "./utils/connectDB";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import log from "./utils/logger";
-import router from "./routes";
+import authRouter from "./routes/auth.routes";
+import userRouter from "./routes/user.routes";
 import deserializeUser from "./middleware/deserializeUser";
 
 const app = express();
 
-app.use(express.json());
+app.use(
+  cors({
+    origin: config.get("origin"),
+    credentials: true,
+  })
+);
 
+app.use(express.json());
 app.use(deserializeUser);
 
-app.use(router);
+app.use(cookieParser());
 
-const port = config.get("port");
+const port = config.get<number>("port");
 
-const start = async () => {
+const start = () => {
   try {
-    await connectToDb();
-    app.listen(port, () => {
+    app.listen(port, async () => {
       log.info(`App started at http://localhost:${port}`);
+      await connectToDb();
+      app.use(authRouter);
+      app.use(userRouter);
     });
   } catch (error) {
     console.log(error);

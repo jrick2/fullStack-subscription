@@ -1,20 +1,15 @@
-import { DocumentType } from "@typegoose/typegoose";
 import { Request, Response } from "express";
-import { get } from "lodash";
-import { User } from "../model/user.model";
-import { CreateSessionInput } from "../schema/auth.schema";
+import config from "config";
 import {
-  findSessionById,
-  signAccessToken,
-  signRefreshToken,
+  createSession,
+  findSessions,
+  updateSession,
 } from "../service/auth.service";
-import { findUserByEmail, findUserById } from "../service/user.service";
-import { verifyJwt } from "../utils/jwt";
+import { findUserByEmail } from "../service/user.service";
+import { signJwt } from "../utils/jwt";
 
-export async function createSessionHandler(
-  req: Request<{}, {}, CreateSessionInput>,
-  res: Response
-) {
+export async function createUserSessionHandler(req: Request, res: Response) {
+  // Validate the user's password
   const message = "Invalid email or password";
   const { email, password } = req.body;
 
@@ -33,46 +28,60 @@ export async function createSessionHandler(
   if (!isValid) {
     return res.send(message);
   }
+  // create a session
+  const session = await createSession(user._id, req.get("user-agent") || "");
 
-  // sign a access token
-  const accessToken = signAccessToken(user);
+  // create an access token
 
-  // sign a refresh token
-  const refreshToken = await signRefreshToken({ userId: user._id });
-
-  // send the tokens
-
-  return res.send({
-    accessToken,
-    refreshToken,
-  });
-}
-
-export async function refreshAccessTokenHandler(req: Request, res: Response) {
-  const refreshToken = get(req, "headers.x-refresh");
-
-  const decoded = verifyJwt<{ session: string }>(
-    refreshToken as string,
-    "refreshTokenPublicKey"
+  const accessToken = signJwt(
+    { ...user, session: session._id },
+    { expiresIn: config.get("accessTokenTtl") } // 15 minutes
   );
 
-  if (!decoded) {
-    return res.status(401).send("Could not refresh access token");
-  }
+  // create a refresh token
+  const refreshToken = signJwt(
+    { ...user, session: session._id },
+    { expiresIn: config.get("refreshTokenTtl") } // 15 minutes
+  );
 
-  const session = await findSessionById(decoded.session);
+  // return access & refresh tokens
 
-  if (!session || !session.valid) {
-    return res.status(401).send("Could not refresh access token");
-  }
+  res.cookie("accessToken", accessToken, {
+    maxAge: 900000, // 15 mins
+    httpOnly: true,
+    domain: "localhost",
+    path: "/",
+    sameSite: "strict",
+    secure: false,
+  });
 
-  const user = await findUserById(String(session.user));
+  res.cookie("refreshToken", refreshToken, {
+    maxAge: 3.154e10, // 1 year
+    httpOnly: true,
+    domain: "localhost",
+    path: "/",
+    sameSite: "strict",
+    secure: false,
+  });
 
-  if (!user) {
-    return res.status(401).send("Could not refresh access token");
-  }
+  return res.send({ accessToken, refreshToken });
+}
 
-  const accessToken = signAccessToken(user);
+export async function getUserSessionsHandler(req: Request, res: Response) {
+  const userId = res.locals.user._id;
 
-  return res.send({ accessToken });
+  const sessions = await findSessions({ user: userId, valid: true });
+
+  return res.send(sessions);
+}
+
+export async function deleteSessionHandler(req: Request, res: Response) {
+  const sessionId = res.locals.user.session;
+
+  await updateSession({ _id: sessionId }, { valid: false });
+
+  return res.send({
+    accessToken: null,
+    refreshToken: null,
+  });
 }
