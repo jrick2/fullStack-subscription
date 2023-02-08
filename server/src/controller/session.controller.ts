@@ -4,30 +4,18 @@ import {
   createSession,
   findSessions,
   updateSession,
-} from "../service/auth.service";
-import { findUserByEmail } from "../service/user.service";
-import { signJwt } from "../utils/jwt";
+} from "../service/session.service";
+import { validatePassword } from "../service/user.service";
+import { signJwt } from "../utils/jwt.utils";
 
 export async function createUserSessionHandler(req: Request, res: Response) {
   // Validate the user's password
-  const message = "Invalid email or password";
-  const { email, password } = req.body;
-
-  const user = await findUserByEmail(email);
+  const user = await validatePassword(req.body);
 
   if (!user) {
-    return res.send(message);
+    return res.status(401).send("Invalid email or password");
   }
 
-  if (!user.verified) {
-    return res.send("Please verify your email");
-  }
-
-  const isValid = await user.validatePassword(password);
-
-  if (!isValid) {
-    return res.send(message);
-  }
   // create a session
   const session = await createSession(user._id, req.get("user-agent") || "");
 
