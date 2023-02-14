@@ -1,6 +1,7 @@
 import { Container } from "react-bootstrap";
 import styled from "styled-components";
-import ModalComponent from "../Modal/Modal";
+import Login from "../Modal/Login";
+import Register from "../Modal/Register";
 
 const HeroComponent = styled.header`
   height: 60vh;
@@ -32,13 +33,13 @@ const Hero = () => {
     <HeroComponent>
       <Container>
         <HeaderContainer>
-          <Heading>Feed Your Mind To The Best</Heading>
+          <Heading>Buy Our Course</Heading>
           <SubHeading>
-            Grow, learn and become more successful by reading some of the top
-            article by highly reputable individual
+            Your life is shit anyway, why waste your time there if you could
+            waste your time here and make us money.
           </SubHeading>
-          <ModalComponent text="Signup" variant="primary" isSignUp={true} />
-          <ModalComponent text="Login" variant="danger" isSignUp={false} />
+          <Register text="Signup" variant="primary" />
+          <Login text="Login" variant="danger" />
         </HeaderContainer>
       </Container>
     </HeroComponent>

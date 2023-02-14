@@ -1,25 +1,36 @@
 import { Modal, Button, InputGroup, FormControl } from "react-bootstrap";
 import { useState } from "react";
 import axios from "axios";
-
+import styled from "styled-components";
 interface ModalProps {
   text: string;
   variant: string;
-  isSignUp: boolean;
 }
-const ModalComponent = ({ text, variant, isSignUp }: ModalProps) => {
+
+const ErrorMessage = styled.p`
+  color: red;
+`;
+
+const Login = ({ text, variant }: ModalProps) => {
   const [show, setShow] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const handleClick = async () => {
-    let data;
-    if (isSignUp) {
-      await axios.post("/auth/register", {
+    let response;
+    const { data: loginData } = await axios.post(
+      `http://localhost:5000/api/sessions`,
+      {
         email,
         password,
-      });
+      }
+    );
+    response = loginData;
+    if (response.errors.length) {
+      return setErrorMsg(response.errors[0].msg);
     }
   };
   return (
@@ -43,7 +54,7 @@ const ModalComponent = ({ text, variant, isSignUp }: ModalProps) => {
             <FormControl
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value as string)}
             />
           </InputGroup>
 
@@ -52,11 +63,12 @@ const ModalComponent = ({ text, variant, isSignUp }: ModalProps) => {
             <FormControl
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value as string)}
             />
           </InputGroup>
         </Modal.Body>
         <Modal.Footer>
+          {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
@@ -69,4 +81,4 @@ const ModalComponent = ({ text, variant, isSignUp }: ModalProps) => {
   );
 };
 
-export default ModalComponent;
+export default Login;
