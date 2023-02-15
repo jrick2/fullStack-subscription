@@ -1,11 +1,10 @@
 import { Modal, Button, InputGroup, FormControl } from "react-bootstrap";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-// import { Resolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import styled from "styled-components";
 import { object, string, TypeOf } from "zod";
-import { Resolver } from "dns";
 interface ModalProps {
   text: string;
   variant: string;
@@ -41,43 +40,30 @@ const createUserSchema = object({
 
 type CreateUserInput = TypeOf<typeof createUserSchema>;
 
-const Login = ({ text, variant }: ModalProps) => {
+const Register = ({ text, variant }: ModalProps) => {
   const [show, setShow] = useState(false);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirmation, verifyPassword] = useState("");
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [registerError, setRegisterError] = useState(null);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<CreateUserInput>({
+    resolver: zodResolver(createUserSchema),
+  });
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const handleClick = async () => {
-    let response;
-
-    // const {
-    //   register,
-    //   formState: { errors },
-    //   handleSubmit,
-    // } = useForm<CreateUserInput>({
-    //   resolver: Resolver(createUserSchema),
-    // });
+  async function onSubmit(values: CreateUserInput) {
     try {
-      const { data: registerData } = await axios.post(
-        `http://localhost:5000/api/users`,
-        {
-          values: createUserSchema,
-          // email,
-          // name,
-          // password,
-          // passwordConfirmation,
-        }
-      );
-      response = registerData;
+      await axios.post(`http://localhost:5000/api/users`, values);
     } catch (e: any) {
-      setErrorMsg(e.message);
+      setRegisterError(e.message);
     }
-  };
+    console.log({ errors });
+  }
+
   return (
     <>
       <Button
@@ -91,51 +77,42 @@ const Login = ({ text, variant }: ModalProps) => {
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header>
+          {registerError}
           <Modal.Title>{text}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <InputGroup className="mb-3">
             <InputGroup.Text>Email</InputGroup.Text>
-            <FormControl
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value as string)}
-            />
+            <FormControl type="email" {...register("email")} />
           </InputGroup>
+          <ErrorMessage>{errors.email?.message}</ErrorMessage>
 
           <InputGroup className="mb-3">
             <InputGroup.Text>Name</InputGroup.Text>
-            <FormControl
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value as string)}
-            />
+            <FormControl type="text" {...register("name")} />
           </InputGroup>
+          <ErrorMessage>{errors.name?.message}</ErrorMessage>
 
           <InputGroup className="mb-3">
             <InputGroup.Text>Password</InputGroup.Text>
-            <FormControl
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value as string)}
-            />
+            <FormControl type="password" {...register("password")} />
           </InputGroup>
+          <ErrorMessage>{errors.password?.message}</ErrorMessage>
 
           <InputGroup className="mb-3">
             <InputGroup.Text>Confirm</InputGroup.Text>
             <FormControl
               type="password"
-              value={passwordConfirmation}
-              onChange={(e) => verifyPassword(e.target.value as string)}
+              {...register("passwordConfirmation")}
             />
           </InputGroup>
+          <ErrorMessage>{errors.passwordConfirmation?.message}</ErrorMessage>
         </Modal.Body>
         <Modal.Footer>
-          {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleClick}>
+          <Button variant="primary" onClick={handleSubmit(onSubmit)}>
             Submit
           </Button>
         </Modal.Footer>
@@ -144,4 +121,4 @@ const Login = ({ text, variant }: ModalProps) => {
   );
 };
 
-export default Login;
+export default Register;
