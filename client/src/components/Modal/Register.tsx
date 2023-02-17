@@ -1,119 +1,109 @@
 import { Modal, Button, InputGroup, FormControl } from "react-bootstrap";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { useState } from "react";
 import styled from "styled-components";
-import { object, string, TypeOf } from "zod";
+import { useNavigate } from "react-router-dom";
+
 interface ModalProps {
   text: string;
-  variant: string;
+  variant: "primary" | "secondary" | "danger";
 }
 
 const ErrorMessage = styled.p`
   color: red;
 `;
 
-const createUserSchema = object({
-  name: string().nonempty({
-    message: "Name is required",
-  }),
-  password: string()
-    .min(6, "Password too short - should be 6 chars minimum")
-    .nonempty({
-      message: "Password is required",
-    }),
-  passwordConfirmation: string().nonempty({
-    message: "passwordConfirmation is required",
-  }),
-  email: string({
-    required_error: "Email is required",
-  })
-    .email("Not a valid email")
-    .nonempty({
-      message: "Password is required",
-    }),
-}).refine((data) => data.password === data.passwordConfirmation, {
-  message: "Passwords do not match",
-  path: ["passwordConfirmation"],
-});
-
-type CreateUserInput = TypeOf<typeof createUserSchema>;
-
 const Register = ({ text, variant }: ModalProps) => {
   const [show, setShow] = useState(false);
-  const [registerError, setRegisterError] = useState(null);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, verifyPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const {
-    register,
-    formState: { errors },
-    handleSubmit,
-  } = useForm<CreateUserInput>({
-    resolver: zodResolver(createUserSchema),
-  });
-
+  const navigate = useNavigate();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  async function onSubmit(values: CreateUserInput) {
+  const handleClick = async () => {
+    let response;
     try {
-      await axios.post(`http://localhost:5000/api/users`, values);
+      const { data: registerData } = await axios.post(
+        "http://localhost:5000/api/users",
+        {
+          email,
+          name,
+          password,
+          passwordConfirmation,
+        }
+      );
+      response = registerData;
+      navigate("/articles");
+      localStorage.setItem("token", response.data.token);
     } catch (e: any) {
-      setRegisterError(e.message);
+      setErrorMsg(e.message);
     }
-    console.log({ errors });
-  }
+  };
 
   return (
     <>
       <Button
-        style={{ margin: "7px", paddingRight: "1.5rem", paddingLeft: "1.5rem" }}
-        size="lg"
         onClick={handleShow}
         variant={variant}
+        size="lg"
+        style={{ marginRight: "1rem", padding: "0.5rem 3rem" }}
       >
         {text}
       </Button>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header>
-          {registerError}
           <Modal.Title>{text}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <InputGroup className="mb-3">
             <InputGroup.Text>Email</InputGroup.Text>
-            <FormControl type="email" {...register("email")} />
+            <FormControl
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </InputGroup>
-          <ErrorMessage>{errors.email?.message}</ErrorMessage>
-
+          {errorMsg && <ErrorMessage>{"Invalid Email"}</ErrorMessage>}
           <InputGroup className="mb-3">
             <InputGroup.Text>Name</InputGroup.Text>
-            <FormControl type="text" {...register("name")} />
+            <FormControl
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </InputGroup>
-          <ErrorMessage>{errors.name?.message}</ErrorMessage>
-
+          {errorMsg && <ErrorMessage>{"Name is required"}</ErrorMessage>}
           <InputGroup className="mb-3">
             <InputGroup.Text>Password</InputGroup.Text>
-            <FormControl type="password" {...register("password")} />
+            <FormControl
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </InputGroup>
-          <ErrorMessage>{errors.password?.message}</ErrorMessage>
-
+          {errorMsg && <ErrorMessage>{"Password to short"}</ErrorMessage>}
           <InputGroup className="mb-3">
             <InputGroup.Text>Confirm</InputGroup.Text>
             <FormControl
               type="password"
-              {...register("passwordConfirmation")}
+              value={passwordConfirmation}
+              onChange={(e) => verifyPassword(e.target.value)}
             />
           </InputGroup>
-          <ErrorMessage>{errors.passwordConfirmation?.message}</ErrorMessage>
+          {errorMsg && <ErrorMessage>{"Password do not match"}</ErrorMessage>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleSubmit(onSubmit)}>
-            Submit
+          <Button variant="primary" onClick={handleClick}>
+            {text}
           </Button>
         </Modal.Footer>
       </Modal>
