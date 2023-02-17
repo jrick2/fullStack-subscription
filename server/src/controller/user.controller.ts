@@ -50,7 +50,7 @@ export async function createUserHandler(
 
     const sucess = "User created successfully";
 
-    return res.send({ sucess, accessToken, refreshToken });
+    return res.status(201).send({ sucess, accessToken, refreshToken });
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);
