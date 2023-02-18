@@ -28,18 +28,15 @@ const Register = ({ text, variant }: ModalProps) => {
   const handleClick = async () => {
     let response;
     try {
-      const { data: registerData } = await axios.post(
-        "http://localhost:5000/api/users",
-        {
-          email,
-          name,
-          password,
-          passwordConfirmation,
-        }
-      );
-      response = registerData;
+      const { data } = await axios.post("http://localhost:5000/api/users", {
+        email,
+        name,
+        password,
+        passwordConfirmation,
+      });
+      response = data;
       navigate("/articles");
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("accessToken", response.data.accessToken);
     } catch (e: any) {
       setErrorMsg(e.message);
     }
@@ -69,7 +66,7 @@ const Register = ({ text, variant }: ModalProps) => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </InputGroup>
-          {errorMsg && <ErrorMessage>{"Invalid Email"}</ErrorMessage>}
+          {/* {errorMsg && <ErrorMessage>{"Invalid Email"}</ErrorMessage>} */}
           <InputGroup className="mb-3">
             <InputGroup.Text>Name</InputGroup.Text>
             <FormControl
@@ -78,7 +75,7 @@ const Register = ({ text, variant }: ModalProps) => {
               onChange={(e) => setName(e.target.value)}
             />
           </InputGroup>
-          {errorMsg && <ErrorMessage>{"Name is required"}</ErrorMessage>}
+          {/* {errorMsg && <ErrorMessage>{"Name is required"}</ErrorMessage>} */}
           <InputGroup className="mb-3">
             <InputGroup.Text>Password</InputGroup.Text>
             <FormControl
@@ -87,7 +84,7 @@ const Register = ({ text, variant }: ModalProps) => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </InputGroup>
-          {errorMsg && <ErrorMessage>{"Password to short"}</ErrorMessage>}
+          {/* {errorMsg && <ErrorMessage>{"Password to short"}</ErrorMessage>} */}
           <InputGroup className="mb-3">
             <InputGroup.Text>Confirm</InputGroup.Text>
             <FormControl
@@ -96,7 +93,7 @@ const Register = ({ text, variant }: ModalProps) => {
               onChange={(e) => verifyPassword(e.target.value)}
             />
           </InputGroup>
-          {errorMsg && <ErrorMessage>{"Password do not match"}</ErrorMessage>}
+          {errorMsg && <ErrorMessage>{"Invalid Credential"}</ErrorMessage>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

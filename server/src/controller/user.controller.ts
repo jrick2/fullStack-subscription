@@ -50,7 +50,13 @@ export async function createUserHandler(
 
     const sucess = "User created successfully";
 
-    return res.status(201).send({ sucess, accessToken, refreshToken });
+    return res.status(201).json({
+      sucess,
+      data: {
+        accessToken,
+        refreshToken,
+      },
+    });
   } catch (e: any) {
     logger.error(e);
     return res.status(409).send(e.message);
@@ -58,5 +64,23 @@ export async function createUserHandler(
 }
 
 export async function getCurrentUser(req: Request, res: Response) {
-  return res.send(res.locals.user);
+  const email = res.locals.user.email;
+  const id = res.locals.user._id;
+  const name = res.locals.user.name;
+  const createdAt = res.locals.user.createdAt;
+  const updataAt = res.locals.user.updataAt;
+  const session = res.locals.user.session;
+
+  return res.json({
+    data: {
+      user: {
+        id,
+        email,
+        name,
+        createdAt,
+        updataAt,
+        session,
+      },
+    },
+  });
 }

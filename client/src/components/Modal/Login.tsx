@@ -26,16 +26,14 @@ const Login = ({ text, variant }: ModalProps) => {
   const handleClick = async () => {
     let response;
     try {
-      const { data: loginData } = await axios.post(
-        "http://localhost:5000/api/sessions",
-        {
-          email,
-          password,
-        }
-      );
-      response = loginData;
+      const { data } = await axios.post("http://localhost:5000/api/sessions", {
+        email,
+        password,
+      });
+      response = data;
+
+      localStorage.setItem("accessToken", response.data.accessToken);
       navigate("/articles");
-      localStorage.setItem("token", response.data.token);
     } catch (e: any) {
       setErrorMsg(e.message);
     }
@@ -65,7 +63,7 @@ const Login = ({ text, variant }: ModalProps) => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </InputGroup>
-          {errorMsg && <ErrorMessage>{"Invalid Email"}</ErrorMessage>}
+          {/* {errorMsg && <ErrorMessage>{"Invalid Email"}</ErrorMessage>} */}
           <InputGroup className="mb-3">
             <InputGroup.Text>Password</InputGroup.Text>
             <FormControl
@@ -74,7 +72,7 @@ const Login = ({ text, variant }: ModalProps) => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </InputGroup>
-          {errorMsg && <ErrorMessage>{"Password to short"}</ErrorMessage>}
+          {errorMsg && <ErrorMessage>{"Invalid Credential"}</ErrorMessage>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>

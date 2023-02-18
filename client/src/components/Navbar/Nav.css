@@ -1,0 +1,21 @@
+.nav-bar {
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  padding: 16px 32px;
+  border-bottom: 3px solid var;
+}
+
+.nav-bar :hover {
+  opacity: 0.85;
+}
+
+.nav-bar :active {
+  opacity: 0.7;
+}
+
+.nav-link {
+  font-size: 28px;
+  text-transform: uppercase;
+}

@@ -52,7 +52,13 @@ export async function createUserSessionHandler(req: Request, res: Response) {
     secure: false,
   });
 
-  return res.send({ accessToken, refreshToken });
+  return res.json({
+    error: [],
+    data: {
+      accessToken,
+      refreshToken,
+    },
+  });
 }
 
 export async function getUserSessionsHandler(req: Request, res: Response) {

@@ -25,7 +25,7 @@ const Heading = styled.h1`
 
 const SubHeading = styled.h4`
   margin: 1rem 0;
-  font-weight: 400;
+  font-size: 1.4.4rem;
 `;
 
 const Hero = () => {

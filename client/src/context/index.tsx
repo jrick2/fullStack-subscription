@@ -5,7 +5,6 @@ interface User {
   data: {
     id: string;
     email: string;
-    stripeCustomerId: string;
   } | null;
   error: string | null;
   loading: boolean;
@@ -22,36 +21,35 @@ const UserProvider = ({ children }: any) => {
     error: null,
   });
 
-  const token = localStorage.getItem("token");
+  const accessToken = localStorage.getItem("accessToken");
 
-  if (token) {
-    axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
+  if (accessToken) {
+    axios.defaults.headers.common["authorization"] = `Bearer ${accessToken}`;
   }
 
   const fetchUser = async () => {
-    const { data: response } = await axios.get("http://localhost:8080/auth/me");
+    const { data: response } = await axios.get("http://localhost:5000/api/me");
 
     if (response.data && response.data.user) {
       setUser({
         data: {
-          id: response.data.user.id,
+          id: response.data.user._id,
           email: response.data.user.email,
-          stripeCustomerId: response.data.user.stripeCustomerId,
         },
         loading: false,
         error: null,
       });
-    } else if (response.data && response.data.errors.length) {
+    } else {
       setUser({
         data: null,
         loading: false,
-        error: response.errors[0].msg,
+        error: "unauthorize",
       });
     }
   };
 
   useEffect(() => {
-    if (token) {
+    if (accessToken) {
       fetchUser();
     } else {
       setUser({
