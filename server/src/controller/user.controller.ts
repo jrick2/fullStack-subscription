@@ -5,6 +5,7 @@ import { createSession } from "../service/session.service";
 import { createUser } from "../service/user.service";
 import { signJwt } from "../utils/jwt.utils";
 import logger from "../utils/logger";
+import { stripe } from "../utils/stripe";
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>,
@@ -53,6 +54,9 @@ export async function createUserHandler(
     return res.status(201).json({
       sucess,
       data: {
+        _id: user._id,
+        email: user.email,
+        stripeCustomerId: user.stripeCustomerId,
         accessToken,
         refreshToken,
       },
@@ -70,6 +74,7 @@ export async function getCurrentUser(req: Request, res: Response) {
   const createdAt = res.locals.user.createdAt;
   const updataAt = res.locals.user.updataAt;
   const session = res.locals.user.session;
+  const stripeCustomerId = res.locals.user.stripeCustomerId;
 
   return res.json({
     data: {
@@ -77,6 +82,7 @@ export async function getCurrentUser(req: Request, res: Response) {
         id,
         email,
         name,
+        stripeCustomerId,
         createdAt,
         updataAt,
         session,

@@ -1,10 +1,12 @@
 import { Express, Request, Response } from "express";
+import { articleSession } from "./controller/article";
 
 import {
   createUserSessionHandler,
   getUserSessionsHandler,
   deleteSessionHandler,
 } from "./controller/session.controller";
+import { stripeHandler, stripeSession } from "./controller/stripe";
 import {
   createUserHandler,
   getCurrentUser,
@@ -23,14 +25,20 @@ function routes(app: Express) {
   app.get("/api/me", requireUser, getCurrentUser);
 
   app.post(
-    "/api/sessions",
+    "/api/login",
     validateResource(createSessionSchema),
     createUserSessionHandler
   );
 
-  app.get("/api/sessions", requireUser, getUserSessionsHandler);
+  app.get("/api/login", requireUser, getUserSessionsHandler);
 
-  app.delete("/api/sessions", requireUser, deleteSessionHandler);
+  app.delete("/api/login", requireUser, deleteSessionHandler);
+
+  app.get("/api/prices", requireUser, stripeHandler);
+
+  app.post("/api/session", requireUser, stripeSession);
+
+  app.get("api/articles", requireUser, articleSession);
 }
 
 export default routes;

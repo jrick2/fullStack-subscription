@@ -55,6 +55,9 @@ export async function createUserSessionHandler(req: Request, res: Response) {
   return res.json({
     error: [],
     data: {
+      _id: user._id,
+      email: user.email,
+      stripeCustomerId: user.stripeCustomerId,
       accessToken,
       refreshToken,
     },

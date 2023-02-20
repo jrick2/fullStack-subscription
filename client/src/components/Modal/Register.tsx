@@ -1,8 +1,9 @@
 import { Modal, Button, InputGroup, FormControl } from "react-bootstrap";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context";
 
 interface ModalProps {
   text: string;
@@ -21,6 +22,7 @@ const Register = ({ text, variant }: ModalProps) => {
   const [passwordConfirmation, verifyPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [state, setState] = useContext(UserContext);
   const navigate = useNavigate();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -35,8 +37,24 @@ const Register = ({ text, variant }: ModalProps) => {
         passwordConfirmation,
       });
       response = data;
-      navigate("/articles");
+
+      setState({
+        data: {
+          id: response.data._id,
+          email: response.data.email,
+          stripeCustomerId: response.data.stripeCustomerId,
+        },
+        loading: false,
+        error: null,
+      });
+
       localStorage.setItem("accessToken", response.data.accessToken);
+
+      axios.defaults.headers.common[
+        "authorization"
+      ] = `Bearer ${response.data.accessToken}`;
+
+      navigate("/articles");
     } catch (e: any) {
       setErrorMsg(e.message);
     }

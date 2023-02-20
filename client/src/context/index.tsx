@@ -5,6 +5,7 @@ interface User {
   data: {
     id: string;
     email: string;
+    stripeCustomerId: string;
   } | null;
   error: string | null;
   loading: boolean;
@@ -35,6 +36,7 @@ const UserProvider = ({ children }: any) => {
         data: {
           id: response.data.user._id,
           email: response.data.user.email,
+          stripeCustomerId: response.data.user.stripeCustomerId,
         },
         loading: false,
         error: null,
@@ -43,7 +45,7 @@ const UserProvider = ({ children }: any) => {
       setUser({
         data: null,
         loading: false,
-        error: "unauthorize",
+        error: null,
       });
     }
   };

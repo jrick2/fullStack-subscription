@@ -26,7 +26,6 @@ const Nav = () => {
           Home
         </Link>
       </NavItem>
-
       {state.data && (
         <LeftNavContainer>
           <NavItem>
