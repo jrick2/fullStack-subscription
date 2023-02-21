@@ -38,7 +38,7 @@ function routes(app: Express) {
 
   app.post("/api/session", requireUser, stripeSession);
 
-  app.get("api/articles", requireUser, articleSession);
+  app.get("/api/articles", requireUser, articleSession);
 }
 
 export default routes;
