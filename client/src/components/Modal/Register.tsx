@@ -30,12 +30,16 @@ const Register = ({ text, variant }: ModalProps) => {
   const handleClick = async () => {
     let response;
     try {
-      const { data } = await axios.post("http://localhost:5000/api/users", {
-        email,
-        name,
-        password,
-        passwordConfirmation,
-      });
+      const { data } = await axios.post(
+        "http://localhost:5000/api/users",
+        {
+          email,
+          name,
+          password,
+          passwordConfirmation,
+        },
+        { withCredentials: true }
+      );
       response = data;
 
       setState({

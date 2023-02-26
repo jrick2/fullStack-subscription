@@ -29,10 +29,14 @@ const Login = ({ text, variant }: ModalProps) => {
   const handleClick = async () => {
     let response;
     try {
-      const { data } = await axios.post("http://localhost:5000/api/login/", {
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        "http://localhost:5000/api/login/",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
       response = data;
 
       setState({
